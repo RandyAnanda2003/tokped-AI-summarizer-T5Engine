@@ -1,5 +1,23 @@
-fastapi
-uvicorn
-torch
-transformers
-pydantic
+# ===== CORE ML =====
+torch==2.6.0
+transformers==4.50.3
+tokenizers==0.21.1
+sentencepiece==0.2.0
+
+# ===== FASTAPI SERVER =====
+fastapi==0.127.0
+starlette==0.50.0
+uvicorn==0.40.0
+anyio==4.9.0
+pydantic==2.10.1
+pydantic_core==2.27.1
+
+# ===== HF SUPPORT =====
+huggingface-hub==0.26.2
+safetensors==0.5.3
+filelock==3.16.1
+regex==2024.11.6
+tqdm==4.66.4
+
+# ===== NUMERIC =====
+numpy==1.26.4
