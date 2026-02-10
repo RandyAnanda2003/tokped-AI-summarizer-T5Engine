@@ -51,10 +51,10 @@ def summarize_text(text):
             **inputs,
             max_length=300,
             min_length=60,
-            num_beams=4,
+            num_beams=5,
             do_sample=False,
             no_repeat_ngram_size=2,
-            repetition_penalty=1.1,
+            repetition_penalty=1.2,
             length_penalty=1.0,
             early_stopping=True
         )
@@ -83,5 +83,6 @@ def health_check():
         "status": "ok",
         "device": str(device)
     }
+
 
 
