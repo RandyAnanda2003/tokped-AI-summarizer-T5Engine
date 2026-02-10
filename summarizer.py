@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import T5ForConditionalGeneration, T5Tokenizer
+
 
 # ===============================
 # FASTAPI APP
@@ -15,19 +16,18 @@ app = FastAPI(
 # ===============================
 # LOAD MODEL (HANYA SEKALI)
 # ===============================
-MODEL_NAME = "siRendy/model_skripsi_ringkasan_ulasan_ecom_final"
+model_path = r"siRendy/model-akhir-skripsi-bismillah"
 
-print("🚀 Loading tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-
-print("🚀 Loading model...")
-model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
+model = T5ForConditionalGeneration.from_pretrained(model_path)
+tokenizer = T5Tokenizer.from_pretrained(model_path)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
+
+model.config.use_cache = False   # ⬅️ PENTING
 model.eval()
 
-print(f"✅ Model loaded on device: {device}")
+print(f"✅ Model loaded on {device}")
 
 # ===============================
 # REQUEST SCHEMA
@@ -38,7 +38,7 @@ class SummarizeRequest(BaseModel):
 # ===============================
 # CORE LOGIC
 # ===============================
-def summarize_text(text: str) -> str:
+def summarize_text(text):
     inputs = tokenizer.encode(
         f"ringkaslah: {text}",
         return_tensors="pt",
@@ -85,3 +85,4 @@ def health_check():
         "status": "ok",
         "device": str(device)
     }
+
