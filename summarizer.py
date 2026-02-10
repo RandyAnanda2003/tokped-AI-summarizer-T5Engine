@@ -39,7 +39,7 @@ class SummarizeRequest(BaseModel):
 # CORE LOGIC
 # ===============================
 def summarize_text(text):
-    inputs = tokenizer.encode(
+    inputs = tokenizer(
         f"ringkaslah: {text}",
         return_tensors="pt",
         max_length=4000,
@@ -48,20 +48,18 @@ def summarize_text(text):
 
     with torch.no_grad():
         summary_ids = model.generate(
-            inputs,
+            **inputs,
             max_length=300,
             min_length=60,
-            num_beams=25,
+            num_beams=4,
             do_sample=False,
-            repetition_penalty=1.2,
-            length_penalty=1.2,
+            no_repeat_ngram_size=2,
+            repetition_penalty=1.1,
+            length_penalty=1.0,
             early_stopping=True
         )
 
-    return tokenizer.decode(
-        summary_ids[0],
-        skip_special_tokens=True
-    )
+    return tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
 # ===============================
 # API ENDPOINT
@@ -85,4 +83,5 @@ def health_check():
         "status": "ok",
         "device": str(device)
     }
+
 
