@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
+from fastapi.concurrency import run_in_threadpool
+import asyncio 
 
 
 # ===============================
@@ -12,6 +14,8 @@ app = FastAPI(
     description="API untuk ringkasan teks menggunakan IndoT5",
     version="1.0"
 )
+#Semenjak load model mahal secara ram, maka cukup load model sekali dan ada 3 proses dengan 1 model yang sama,. oleh karena itu cukup gunakan saja semaphore multithread = 3
+semaphore = asyncio.Semaphore(3)
 
 # ===============================
 # LOAD MODEL (HANYA SEKALI)
@@ -49,9 +53,9 @@ def summarize_text(text):
     with torch.no_grad():
         summary_ids = model.generate(
             **inputs,
-            max_length=300,
+            max_length=350,
             min_length=60,
-            num_beams=5,
+            num_beams=8,
             do_sample=False,
             no_repeat_ngram_size=2,
             repetition_penalty=1.2,
@@ -65,14 +69,14 @@ def summarize_text(text):
 # API ENDPOINT
 # ===============================
 @app.post("/summarize")
-def summarize(req: SummarizeRequest):
+async def summarize(req: SummarizeRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Text tidak boleh kosong")
-
-    summary = summarize_text(req.text)
-    return {
-        "summary": summary
-    }
+    async with semaphore:  # Batasi akses ke blok ini
+        summary = await run_in_threadpool(summarize_text, req.text)
+        return {
+            "summary": summary
+        }
 
 # ===============================
 # OPTIONAL: HEALTH CHECK
