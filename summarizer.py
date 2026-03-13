@@ -20,7 +20,7 @@ semaphore = asyncio.Semaphore(3)
 # ===============================
 # LOAD MODEL (HANYA SEKALI)
 # ===============================
-model_path = r"siRendy/model-akhir-skripsi-bismillah"
+model_path = r"siRendy/model3-buat-survey"
 
 model = T5ForConditionalGeneration.from_pretrained(model_path)
 tokenizer = T5Tokenizer.from_pretrained(model_path)
@@ -53,13 +53,13 @@ def summarize_text(text):
     with torch.no_grad():
         summary_ids = model.generate(
             **inputs,
-            max_length=350,
+            max_length=380,
             min_length=60,
-            num_beams=8,
+            num_beams=10,
             do_sample=False,
             no_repeat_ngram_size=2,
             repetition_penalty=1.2,
-            length_penalty=1.0,
+            length_penalty=1.2,
             early_stopping=True
         )
 
